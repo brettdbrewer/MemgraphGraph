@@ -41,18 +41,32 @@ def build_schema(nodes, rel_properties, relationships) -> str:
         for node_label in node_dict[node_id]:
             node_prop_str += f"""Node Name: '{node_label}', Node Properties: [{node_properties_str}]\n"""
 
+    # form the relationship property string(s) for prompt injection
+    rel_prop_list = rel_properties[0]["output"]
+    for rel in rel_prop_list:
+        rel_property_list = list(rel["properties"]["properties_count"].keys())
+
+        if rel_property_list:  # only add if there are properties
+            # form property string(s) for prompt injection
+            rel_properties_str = ""
+            for property in rel_property_list:
+                if property != "count":  # don't add count property
+                    rel_properties_str += (
+                        f"""('property': '{property}', 'type': 'STRING'),"""
+                    )
+
+                    # form the full label and property string per node label for prompt injection
+                    rel_label = rel["label"]
+                    rel_prop_str += f"""Relationship Name: '{rel_label}', Node Properties: [{rel_properties_str}]\n"""
+
     # form the relationship strings for prompt injection
     rel_list = relationships[0]["output"]
     # each node may have more than one label, so iterate through
-    # each permuatation of start and end labels for each relationship
+    # each permutatation of start and end labels for each relationship
     for rel in rel_list:
         for start_label in node_dict[rel["start"]]:
             for end_label in node_dict[rel["end"]]:
                 rel_str += f"['(:{start_label})-[:{rel['label']}]->(:{end_label})']\n"
-
-    # form the relationship property strings for prompt injection
-    #  TODO: not ipmlemented yet
-    rel_prop_str = ""
 
     schema = f"""
 Node properties are the following:
@@ -63,7 +77,7 @@ The relationships are the following:
 {rel_str}
     """
 
-    print(schema)
+    print(schema)  # TODO: remove this in final implementation
     return schema
 
 
