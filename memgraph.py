@@ -55,9 +55,10 @@ def build_schema(nodes, rel_properties, relationships) -> str:
                         f"""('property': '{property}', 'type': 'STRING'),"""
                     )
 
-                    # form the full label and property string per node label for prompt injection
+                    # form the full label and property string
+                    # per node label for prompt injection
                     rel_label = rel["label"]
-                    rel_prop_str += f"""Relationship Name: '{rel_label}', Node Properties: [{rel_properties_str}]\n"""
+                    rel_prop_str += f"""Relationship Name: '{rel_label}', Relationship Properties: [{rel_properties_str}]\n"""
 
     # form the relationship strings for prompt injection
     rel_list = relationships[0]["output"]
