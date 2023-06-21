@@ -15,8 +15,8 @@ chain = GraphCypherQAChain.from_llm(
 )
 
 ###### queries that leverage nodes and relationships
-# query = "Show me the characters with allegiance to the White Walkers."
-# query = "Who is Jon Snow allied with?"
+# query = "Show me the characters with allegiance to the white walkers."
+# query = "Who is jon snow allied with?"
 # query = "Which episode had the most deaths?"
 # query = "Which location had the most deaths?"
 # query = "Where did Jon Snow die?"
@@ -27,15 +27,27 @@ chain = GraphCypherQAChain.from_llm(
 # query = "Who died in the red wedding?"
 
 ###### queries that leverage the method property of the KILLED relationship
-# query = "Which characters were killed by hanging?"  /
-# doesn't equate "hanged" with KILLED method of "Noose"
-# query = "Which character was killed by a Shadow Demon?"  # returns correct answer
-# query = "How was Jon Snow killed?"  # results in unbound variable error
-# query = "Which characters were killed by poison?"  /
-# fails due to "poison" not being capitalized
-# query = "Which characters were killed by Poison?"  /
-# correctly creates Cypher query, but final answer incomplete
-query = "Which character was killed by Magic?"
+# query = "Which characters were killed by hanging?"
+## doesn't equate "hanged" with KILLED method of "Noose"
+
+# query = "Which character was killed by a Shadow Demon?"
+## returns correct answer
+
+# query = "How was Jon Snow killed?"
+## results in unbound variable error
+## returns: MATCH (killer:Character)-[:KILLED {method: method}]->
+##          (victim:Character {name: "Jon Snow"}) RETURN method
+## should return: MATCH (killer:Character)-[k:KILLED]->
+##                (victim:Character {name: "Jon Snow"}) RETURN k.method
+
+# query = "Which characters were killed by poison?"
+## fails due to "poison" not being capitalized
+
+# query = "Which characters were killed by Poison?"
+## correctly creates Cypher query, but final answer incomplete
+
+query = "Which character was killed by magic? (turn case sensitivity off)"
+## returns correct answer if case sensitivity is turned off
 
 results = chain.run(query)
 

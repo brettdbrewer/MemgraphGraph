@@ -1,4 +1,5 @@
 from typing import Any, Dict, List
+
 from langchain.graphs import Neo4jGraph
 
 node_query = """
@@ -14,7 +15,11 @@ CALL meta_util.schema() YIELD relationships RETURN relationships AS output;
 """
 
 
-def build_schema(nodes, rel_properties, relationships) -> str:
+def build_schema(
+    nodes: List[Dict[str, Any]],
+    rel_properties: List[Dict[str, Any]],
+    relationships: List[Dict[str, Any]],
+) -> str:
     node_dict: Dict = {}
     node_prop_str: str = ""
     rel_prop_str: str = ""
@@ -39,7 +44,8 @@ def build_schema(nodes, rel_properties, relationships) -> str:
 
         # form the full label and property string per node label for prompt injection
         for node_label in node_dict[node_id]:
-            node_prop_str += f"""Node Name: '{node_label}', Node Properties: [{node_properties_str}]\n"""
+            node_prop_str += f"""Node Name: '{node_label}', 
+            Node Properties: [{node_properties_str}]\n"""
 
     # form the relationship property string(s) for prompt injection
     rel_prop_list = rel_properties[0]["output"]
@@ -58,7 +64,8 @@ def build_schema(nodes, rel_properties, relationships) -> str:
                     # form the full label and property string
                     # per node label for prompt injection
                     rel_label = rel["label"]
-                    rel_prop_str += f"""Relationship Name: '{rel_label}', Relationship Properties: [{rel_properties_str}]\n"""
+                    rel_prop_str += f"""Relationship Name: '{rel_label}', 
+                    Node Properties: [{rel_properties_str}]\n"""
 
     # form the relationship strings for prompt injection
     rel_list = relationships[0]["output"]
@@ -78,7 +85,6 @@ The relationships are the following:
 {rel_str}
     """
 
-    print(schema)  # TODO: remove this in final implementation
     return schema
 
 
@@ -131,7 +137,7 @@ class MemgraphGraph(Neo4jGraph):
                 # Hard limit of 50 results
                 return [r.data() for r in data][:50]
             except CypherSyntaxError as e:
-                raise ValueError("Generated Cypher Statement is not valid\n" f"{e}")
+                raise ValueError(f"Generated Cypher Statement is not valid\n{e}")
 
     def refresh_schema(self) -> None:
         """
