@@ -1,7 +1,7 @@
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import GraphCypherQAChain
 from langchain.prompts import PromptTemplate
-from memgraph import MemgraphGraph
+from langchain.graphs import MemgraphGraph
 
 query: str = ""
 
